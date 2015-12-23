@@ -1,0 +1,121 @@
+Schema             ::= NamespaceSpec? NameSpec? VersionSpec? TypeDef* ResourceDef*
+
+NamespaceSpec      ::= "namespace" Namespace (";")?
+NameSpec           ::= "name" Name (";")?
+VersionSpec        ::= "version" LiteralInteger (";")?
+
+TypeDef            ::= SimpleTypeDef | BytesTypeDef | StringTypeDef | SymbolTypeDef | NumberTypeDef | EnumTypeDef | StructTypeDef
+
+SimpleTypeDef      ::= "type" Name TypeSpec (";")?
+
+TypeSpec           ::= TypeRef
+                     | "Array" "<" TypeRef ">"
+                     | "Map" "<" TypeRef "," TypeRef ">"
+                     | "Union" "<" TypeName ("," TypeName)* ">"
+
+BytesTypeDef       ::= "type" Name "Bytes" ("[" LiteralInteger "]")? ("(" BytesOption ("," BytesOption)* ")")? (";")?
+
+BytesOption        ::= "minsize" "=" LiteralInteger | "maxsize" "=" LiteralInteger
+                     | ExtendedOption
+
+StringTypeDef      ::= "type" Name "String" ("(" StringOption ("," StringOption)* ")")? ";"
+
+StringOption       ::= "pattern" "=" LiteralString
+                     | "values" "=" "[" LiteralString ("," LiteralString)* "]"
+                     | ExtendedOption
+
+SymbolTypeDef      ::= "type" Name "Symbol" ("(" SymbolOption ("," SymbolOption)* ")")? ";"
+
+SymbolOption       ::= "values" "=" "[" LiteralSymbol ("," LiteralSymbol)* "]"
+                     | ExtendedOption
+
+NumberTypeDef      ::= "type" Name NumberType ("(" NumberOption ("," NumberOption)* ")")? (";")?
+
+NumberOption       ::= "min" "=" LiteralNumber | "max" "=" LiteralNumber
+                     | ExtendedOption
+
+EnumTypeDef        ::= "type" Name "Enum" ("(" EnumOption ("," EnumOption)* ")")? "{" Identifier ("," Identifier)* ("}")?
+
+EnumOption         ::= ExtendedOption
+
+StructTypeDef      ::= "type" Name "Struct" ("(" StructOption ("," StructOption)* ")")? "{" FieldSpec+ "}"
+
+StructOption       ::= "closed"
+                     | ExtendedOption
+
+FieldSpec          ::= TypeSpec Name ("(" FieldOption ("," FieldOption)* ")")? ";"
+
+FieldOption        ::= "optional"
+                     | "default" "=" Literal
+                     | ExtendedOption
+
+ArrayOption        ::= "size" "=" LiteralInteger | "minsize" "=" LiteralInteger | "maxsize" "=" LiteralInteger
+                     | ExtendedOption
+
+MapOption          ::= "minsize" "=" LiteralInteger | "maxsize" "=" LiteralInteger
+                     | ExtendedOption
+
+
+ExtendedOption     ::= "x_" LiteralSymbol
+                     | "x_" LiteralSymbol "=" LiteralString
+
+
+NumericType        ::= "Int8" | "Int16" | "Int32" | "Int64" | "Float32" | "Float64"
+
+TypeName           ::= "Bool"
+                     | "Bytes" | "String" | "Symbol"
+                     | "UUID" | "Timestamp"
+                     | "Array" | "Map" | "Struct"
+                     | NumericType
+                     | UserTypeName
+
+TypeRef            ::= TypeName | "Any"
+
+UserTypeName       ::= Name
+
+Identifier         ::= Name
+
+Name               ::= NameStartChar (NameChar)*
+CompoundName       ::= Name ("." Name)*
+Namespace          ::= CompoundName
+
+Literal            ::= LiteralMap | LiteralArray | LiteralNumber | LiteralString | LiteralSymbol | "true" | "false"
+LiteralSymbol      ::= Name
+LiteralMap         ::= "{" (Name ":" Literal) ("," Name ":" Literal)* "}"
+LiteralArray       ::= "[" Literal ("," Literal)* "}"
+LiteralString      ::= '"' [^"]* '"'
+LiteralNumber      ::= LiteralInteger ("." Digit+)?
+LiteralInteger     ::= ("-")? PositiveDigit (Digit)*
+PositiveDigit      ::= [1-9]
+Digit              ::= [0-9]
+Alphanumeric       ::= [A-Z] | [a-z] | [0-9]
+NameStartChar      ::= [A-Z] | "_" | [a-z] 
+NameChar           ::= NameStartChar | [0-9]
+
+
+ResourceDef        ::= "resource" TypeName Method LiteralString "{" InputSpec+ OutputSpec+ Authorization ExpectedSpec ExceptionSpec "}"
+Method             ::= "GET"
+                     | "PUT"
+                     | "DELETE"
+                     | "POST"
+StringTemplate     ::= '"' ([^"]* "{" Name "}")* '"'
+InputSpec          ::= TypeSpec Name ("(" InputOption ("," InputOption)* ")")? ";"
+ParamOption        ::= "optional"
+                     | "header" "=" ParamName
+                     | "context" "=" ("auth.credentials" | "auth.principal")
+                     | "default" "=" Literal
+OutputSpec         ::= TypeSpec Name ("(" OutputOption ("," OutputOption)* ")")? ";"
+OutputOption       ::= "header" "=" ParamName
+                     | "out"
+Authorization      ::= "authorize" "(" ActionName "," ResourceName ("," DomainName)? ")"
+ExpectedSpec       ::= "expected" Status ("," Status)* ";"
+ExceptionSpec      ::= "exception" "{" (TypeName Status ";")+ "}"
+Status             ::= "OK"
+                     | "CREATED"
+                     | "NO_CONTENT"
+                     | "NOT_MODIFIED"
+                     | "NOT_FOUND"
+                     | "BAD_REQUEST"
+                     | "etc"
+ParamChar          ::= [A-Z] | "-" | [a-z] | [0-9] | "_"
+ParamName          ::= (ParamChar)+

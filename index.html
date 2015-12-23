@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="Content-Language" content="en">
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
+    
+    <title>RDL - Resource Description Language</title>
+  </head>
+  <body>
+    <header>
+      <div class="inner">
+        <h1>RDL</h1>
+        <h2>Resource Description Language</h2>
+      </div>
+      <div class="aside">
+        <a href="https://github.com/ardielle" class="button"><small>View project on </small>GitHub</a>
+      </div>
+    </header>
+    <div id="content-wrapper">
+      <div class="inner clearfix">
+
+        <section id="main-content">
+          
+          <h2><a name="Overview">Overview</a></h2>
+          <p>
+            RDL is a machine-readable description of a <code>schema</code> that describes data types,
+            as well as resources using those types. Such a schema can be used to describe
+            HTTP web services, as well as serve as the source of truth for data encoding
+            mechanisms like Protocol Buffers and Avro, as well as augment JSON and other encoding schemes by
+            providing data validation.
+          </p>
+          <p>
+            Types are defined by deriving from an already defined type. Every type is thus derived
+            (perhaps indirectly) from a primitive base type. For each base type various different options
+            may be available to further restrict the type.
+          </p>
+          <p>
+            For more information and source code, look at the
+            <a href="https://github.com/ardielle">Github</a> repository.
+          </p>
+
+          <h2><a name="Syntax">Syntax</a></h2>
+          <p>
+            RDL's syntax is similar to C and Java, and is fairly familiar-looking to most programmers, i.e.
+            <pre>
+type Point Struct {
+    Int32 x;
+    Int32 y;
+}
+            </pre>
+            The syntax is defined by an <a href="rdl_ebnf.txt" target="rdl_ebnf.txt">EBNF grammer</a>, which has been used to generate a <a href="syntax.xhtml">visual railroad diagram</a>.
+          </p>
+
+          <h2><a name="Primitives">Primitive Types</a></h2>
+            <table>
+              <colgroup>
+                <col style="text-align:left;"/>
+                <col style="text-align:left;"/>
+              </colgroup>
+              
+              <thead>
+                <tr>
+                  <th style="text-align:left;">Name</th>
+                  <th style="text-align:left;">Description</th>
+                </tr>
+              </thead>
+              
+              <tbody>
+                <tr>
+                  <td style="text-align:left;"><code>Null</code></td>
+                  <td style="text-align:left;">No value</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Bool</code></td>
+                  <td style="text-align:left;">Either `true` or `false`</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Int8</code></td>
+                  <td style="text-align:left;">An 8-bit signed integer</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Int16</code></td>
+                  <td style="text-align:left;">A 16-bit signed integer</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Int32</code></td>
+                  <td style="text-align:left;">A 32-bit signed integer</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Int64</code></td>
+                  <td style="text-align:left;">A 64-bit signed integer</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Float32</code></td>
+                  <td style="text-align:left;">A single precision (32-bit) IEEE 754 floating-point number</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Float64</code></td>
+                  <td style="text-align:left;">A double precision (64) IEEE 754 floating-point number</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Bytes</code></td>
+                  <td style="text-align:left;">A sequence of 8 bit bytes</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>String</code></td>
+                  <td style="text-align:left;">A sequence of unicode characters expressed in the UTF8 character set.</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Symbol</code></td>
+                  <td style="text-align:left;">A simple identifier, like a string but restricted in the characters accepted, generally following what most llanguages would consider a valid variable name</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>UUID</code></td>
+                  <td style="text-align:left;">A universally unique identifier, as defined by <a href="#References">RFC 4122 [UUID]</a></td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Timestamp</code></td>
+                  <td style="text-align:left;">An instance in time, expressed as a floating point number number of seconds since 1970. May also be represented as a string in UTC as described in <a href="#References">RFC 3339 [Timestamp]</a>)</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Array</code></td>
+                  <td style="text-align:left;">An ordered collection of other values</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Map</code></td>
+                  <td style="text-align:left;">An unordered mapping of keys to values</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Enum</code></td>
+                  <td style="text-align:left;">An enumerated set of symbolic identifiers.</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Union</code></td>
+                  <td style="text-align:left;">A tagged union of other types</td>
+                </tr>
+                <tr>
+                  <td style="text-align:left;"><code>Struct</code></td>
+                  <td style="text-align:left;">An ordered collection of named fields, describable by a schema</td>
+                </tr>
+              </tbody>
+            </table>
+            <p>&nbsp;</p>
+          <p>Note: all type names in RDL are case-insensitive. Capitalized types are used in this document.</p>
+
+          <h2><a name="Representation">Representation</a></h2>
+          <p>
+            Such a structured type definition gets compiled to a <code>Schema</code>, a data structure that describes
+            the typedefs. Although schemas could be directly written as data, i.e. in JSON or YAML, the
+            RDL source is designed to be more expressive, less noisy and easier to diff in a source control system. The
+            <code>Point</code> type defined above would be expressed as the following schema, shown
+            here in JSON:
+          </p>
+          <pre>
+{
+    "types": [
+        {
+            "StructTypeDef": {
+                "type": "Struct",
+                "name": "Point",
+                "fields": [
+                    {
+                        "name": "x",
+                        "type": "Int32"
+                    },
+                    {
+                        "name": "y",
+                        "type": "Int32"
+                    }
+                ]
+            }
+        }
+    ]
+}
+          </pre>
+          <p>
+            Each of the types in the array are of type <code>Type</code>, which is a Union of
+            a variety of type definition structures. The format of the Schema data structure is
+            defined itself in RDL, see <a href="">rdl.rdl</a> for this definition.
+          </p>
+          
+          <h2><a name="Type_Mappings">Type Mappings</a></h2>
+          
+          <p>Below are mappings of RDL types to some other common type systems. The following table summarizes the relationship, with notes following:</p>
+          
+          <table style="xtext-align:left;">
+            <colgroup>
+              <col />
+              <col />
+              <col />
+              <col />
+              <col />
+              <col />
+              <col />
+              <col />
+              <col />
+              <col />
+            </colgroup>
+            
+            <thead  style="text-align:left;">
+              <tr>
+                <th>RDL</th>
+                <th>JSON</th>
+                <th>Protobuf</th>
+                <th>Avro</th>
+                <th>Hive</th>
+                <th>XSD</th>
+              </tr>
+            </thead>
+            
+            <tbody>
+              <tr>
+                <td style="text-align:left;"><code>Null</code></td>
+                <td style="text-align:left;"><code>null</code></td>
+                <td style="text-align:left;"><code>-</code>&nbsp;[1]</td>
+                <td style="text-align:left;"><code>null</code></td>
+                <td style="text-align:left;"><code>-</code>&nbsp;[1]</td>
+                <td style="text-align:left;"><code>-</code>&nbsp;[1]</td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Bool</code></td>
+                <td style="text-align:left;"><code>true</code> or <code>false</code></td>
+                <td style="text-align:left;"><code>bool</code></td>
+                <td style="text-align:left;"><code>boolean</code></td>
+                <td style="text-align:left;"><code>boolean</code></td>
+                <td style="text-align:left;"><code>boolean</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Int8</code></td>
+                <td style="text-align:left;"><code>number</code>&nbsp;[2]</td>
+                <td style="text-align:left;"><code>sint32</code>&nbsp;[3]</td>
+                <td style="text-align:left;"><code>int</code>&nbsp;[4]</td>
+                <td style="text-align:left;"><code>tinyint</code></td>
+                <td style="text-align:left;"><code>byte</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Int16</code></td>
+                <td style="text-align:left;"><code>number</code>&nbsp;[2]</td>
+                <td style="text-align:left;"><code>sint32</code>&nbsp;[3]</td>
+                <td style="text-align:left;"><code>int</code>&nbsp;[4]</td>
+                <td style="text-align:left;"><code>smallint</code></td>
+                <td style="text-align:left;"><code>short</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Int32</code></td>
+                <td style="text-align:left;"><code>number</code>&nbsp;[2]</td>
+                <td style="text-align:left;"><code>sint32</code>&nbsp;[5]</td>
+                <td style="text-align:left;"><code>int</code>&nbsp;[6]</td>
+                <td style="text-align:left;"><code>int</code>&nbsp;[5]</td>
+                <td style="text-align:left;"><code>integer</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Int64</code></td>
+                <td style="text-align:left;"><code>number</code>&nbsp;[2]</td>
+                <td style="text-align:left;"><code>sint64</code>&nbsp;[5]</td>
+                <td style="text-align:left;"><code>long</code>&nbsp;[6]</td>
+                <td style="text-align:left;"><code>bigint</code>&nbsp;[5]</td>
+                <td style="text-align:left;"><code>long</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Float32</code></td>
+                <td style="text-align:left;"><code>number</code>&nbsp;[2]</td>
+                <td style="text-align:left;"><code>float</code>&nbsp;[5]</td>
+                <td style="text-align:left;"><code>float</code>&nbsp;[6]</td>
+                <td style="text-align:left;"><code>float</code>&nbsp;[5]</td>
+                <td style="text-align:left;"><code>float</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Float64</code></td>
+                <td style="text-align:left;"><code>number</code>&nbsp;[2]</td>
+                <td style="text-align:left;"><code>double</code>&nbsp;[5]</td>
+                <td style="text-align:left;"><code>double</code>&nbsp;[6]</td>
+                <td style="text-align:left;"><code>double</code>&nbsp;[5]</td>
+                <td style="text-align:left;"><code>double</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Bytes</code></td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[7]</td>
+                <td style="text-align:left;"><code>bytes</code></td>
+                <td style="text-align:left;"><code>bytes</code></td>
+                <td style="text-align:left;"><code>binary</code></td>
+                <td style="text-align:left;"><code>hexBinary</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>String</code></td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[8]</td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[8]</td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[9]</td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[8]</td>
+                <td style="text-align:left;"><code>string</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Symbol</code></td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[8]</td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[8]</td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[9]</td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[8]</td>
+                <td style="text-align:left;"><code>string</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>UUID</code></td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[10]</td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[10]</td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[11]</td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[10]</td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[12,13]</td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Timestamp</code></td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[2]</td>
+                <td style="text-align:left;"><code>double</code>&nbsp;[2]</td>
+                <td style="text-align:left;"><code>double</code>&nbsp;[2]</td>
+                <td style="text-align:left;"><code>double</code>&nbsp;[2]</td>
+                <td style="text-align:left;"><code>dateTime</code>&nbsp;[2]</td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Array</code></td>
+                <td style="text-align:left;"><code>array</code></td>
+                <td style="text-align:left;"><code>repeated &lt;V&gt;</code>&nbsp;[14]</td>
+                <td style="text-align:left;"><code>array</code>&nbsp;[14]</td>
+                <td style="text-align:left;"><code>array</code>&nbsp;[14, 8]</td>
+                <td style="text-align:left;"><code>sequence</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Map</code></td>
+                <td style="text-align:left;"><code>object</code></td>
+                <td style="text-align:left;"><code>repeated&nbsp;T&lt;K,V&gt;</code>&nbsp;[14,15]</td>
+                <td style="text-align:left;"><code>map</code>&nbsp;[14,13]</td>
+                <td style="text-align:left;"><code>map</code>&nbsp;[14, 8]</td>
+                <td style="text-align:left;"><code>all</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Struct</code></td>
+                <td style="text-align:left;"><code>object</code></td>
+                <td style="text-align:left;"><code>message</code></td>
+                <td style="text-align:left;"><code>record</code></td>
+                <td style="text-align:left;"><code>struct</code></td>
+                <td style="text-align:left;"><code>all</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Enum</code></td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[2]</td>
+                <td style="text-align:left;"><code>enum</code></td>
+                <td style="text-align:left;"><code>enum</code></td>
+                <td style="text-align:left;"><code>string</code>&nbsp;[2]</td>
+                <td style="text-align:left;"><code>string [2]</code></td>
+              </tr>
+              <tr>
+                <td style="text-align:left;"><code>Union</code></td>
+                <td style="text-align:left;"><code>value</code>&nbsp;[2]</td>
+                <td style="text-align:left;"><code>message optional&nbsp;[2]</code></td>
+                <td style="text-align:left;"><code>union</code></td>
+                <td style="text-align:left;"><code>union</code>&nbsp;[8]</td>
+                <td style="text-align:left;"><code>union</code></td>
+              </tr>
+              <tr><td style="text-align:left;" colspan="8">&nbsp;</td></tr>
+              <tr><td style="text-align:left;" colspan="8">Notes: </td></tr>
+              <tr><td style="text-align:left;" colspan="8">[1] null is not supported in this representation</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[2] type information is lost</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[3] mapped to larger size number, original type is lost</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[4]mapped to larger size number, original type becomes an annotation</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[5] mapped to the number, subtype info is lost</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[6] mapped to the number, subtype info becomes an annotation</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[7] base64 url-friendly encoding, subtype info is lost</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[8] subtype information is lost</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[9] subtype is preserved as an annotation</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[10] RFC 4122 string, type information is lost</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[11] fixed[16], type is preserved as an annotation</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[12] RFC 4122 format URN, i.e. "urn:uuid:fae891e0-0538-11e3-851b-d875f41b36e4"</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[13] keys converted to string, key type lost</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[14] item type required</td></tr>
+              <tr><td style="text-align:left;" colspan="8">[15] key type required</td></tr>
+            </tbody>
+          </table>
+          
+          <p>&nbsp;</p>
+          <p>Note that most JSON implementations use `double` as the type to hold numbers, so Int64 cannot be
+            accurately represented. Most other types in JSON can be represented (usually as strings), but type
+            information is lost. Decoding with a schema can recover this information.</p>
+          <p>For Protobuf, note that not all types can be derived from. Numbers, Booleans, and String types
+            get encoded as the base type, and other type information is lost.</p>          
+          <p>Avro uses JSON to represent schemas, and a type structure can generally be annotated with additional
+            information, for example the RDL schema object itself. This can be used to preserve type (and subtype)
+            information, but after decoding, post-processing must be done to recover that information.</p>
+          
+	      <h2><a name="References">References</a></h2>
+          <ul>
+            [UUID] <a href="http://tools.ietf.org/html/rfc4122">http://tools.ietf.org/html/rfc4122</a><br/>
+            [Timestamp] <a href="http://tools.ietf.org/html/rfc3339">http://tools.ietf.org/html/rfc3339</a><br/>
+            [JSON] <a href="http://tools.ietf.org/html/rfc4627">http://tools.ietf.org/html/rfc4627</a><br/>
+            [Protobuf] <a href="https://developers.google.com/protocol-buffers/docs/proto">https://developers.google.com/protocol-buffers/docs/proto</a><br/>
+            [Avro] <a href="http://avro.apache.org/docs/current/spec.html#schemas">http://avro.apache.org/docs/current/spec.html#schemas</a><br/>
+            [Hive] <a href="https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Types">https://cwiki.apache.org/confluence/display/Hive/LanguageManual+Types</a><br/>
+          </ul>
+          
+        </section>
+      </div>
+    </div>
+  </body>
+</html>
