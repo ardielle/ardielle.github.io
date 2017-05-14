@@ -1,0 +1,97 @@
+#!/usr/bin/env python
+##!/usr/bin/python
+
+import sys
+import re
+
+
+#src = sys.stdin.read()
+with file("diagram.xhtml") as f: src = f.read()
+
+with file("syntax_template.xhtml") as f: templ = f.read()
+
+dst = src
+
+#strip the outer body and header
+i = src.find("<body>");
+j = src.find("<xhtml:p xmlns:xhtml=\"http://www.w3.org/1999/xhtml\"><xhtml:table")
+dst = src[i+6:j]
+i = dst.find("</body>")
+dst = dst[:i]
+
+#strip the redundant styles (so our styles stick)
+i = dst.find("<defs>")
+while i >= 0:
+      j = dst.find("</defs>", i)
+      dst = dst[0:i] + dst[j+7:]
+      i = dst.find("<defs>", i+1)
+
+#strip the outermost arrows on the diagrams
+i = dst.find("<polygon ")
+while i >= 0:
+      # keep the second of every pair
+      j = dst.find("<polygon ", i+1)
+      dst = dst[0:i] + dst[j:]
+      i = dst.find("<polygon ", i+1)
+
+#strip out the ebnf echo
+i = dst.find("<xhtml:p xmlns:xhtml=\"http://www.w3.org/1999/xhtml\"><xhtml:div class=\"ebnf\">")
+while i >= 0:
+      j = dst.find("</xhtml:div></xhtml:p>", i)
+      dst = dst[0:i] + dst[j+22:]
+      i = dst.find("<xhtml:p xmlns:xhtml=\"http://www.w3.org/1999/xhtml\"><xhtml:div class=\"ebnf\">", i)
+
+#convert the titles to h3
+dst = dst.replace("<xhtml:p xmlns:xhtml=\"http://www.w3.org/1999/xhtml\" style=\"font-size: 14px; font-weight:bold\">", "<xhtml:h3 xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">")
+i = dst.find("<xhtml:h3 xmlns:xhtml")
+while i >= 0:
+      j = dst.find("</xhtml:p>", i)
+      k = dst.find("xhtml:a name=\"", i)
+      l = dst.find("\">", k)
+      dst = dst[0:j] + "</xhtml:h3>" + dst[j+10:]
+      i = dst.find("<xhtml:h3 xmlns:xhtml", i+5)
+
+# strip out the ebnf
+i = dst.find("<xhtml:div class=\"ebnf\">")
+while i >= 0:
+      j = dst.find("</xhtml:div>", i)
+      dst = dst[0:i] + dst[j+12:]
+      i = dst.find("<xhtml:div class=\"ebnf\">")
+
+#convert references to single line
+dst = dst.replace("no references", "")
+i = dst.find("referenced by:")
+while i >= 0:
+      delim = ""
+      j = dst.find("<xhtml:ul>", i)
+      while j >= 0:
+            head = dst[0:j]
+            k = dst.find("</xhtml:ul>", j+10)
+            tail = dst[k+11:]
+            item = dst[j+10:k]
+            between = ""
+            l = item.find("<xhtml:li>")
+            delim = ""
+            while l >= 0:
+                  m = item.find("</xhtml:li>", l)
+                  between = between + delim + item[l+10:m]
+                  delim = ", "
+                  l = item.find("<xhtml:li>", m)
+            dst = head + between + tail
+            j = dst.find("<xhtml:ul>", j)
+      i = dst.find("referenced by:", i+14)
+
+# simplify the text, we already have the xhtml namespace as the default
+dst = dst.replace("xhtml:", "")
+
+# and stick the processing xhtml into the template
+
+dst = templ.replace("{{BODY}}", dst);
+
+outfile = open("syntax.xhtml", 'w')
+outfile.truncate()
+
+#print dst
+outfile.write(dst)
+outfile.close()
+

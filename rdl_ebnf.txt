@@ -1,60 +1,67 @@
-Schema             ::= NamespaceSpec? NameSpec? VersionSpec? TypeDef* ResourceDef*
+SchemaV3             ::= SchemaOptions? TypeDef* ResourceDef*
+SchemaOptions      ::=  NamespaceSpec? NameSpec? VersionSpec? BasePath? IncludeSpec* UseSpec*
 
 NamespaceSpec      ::= "namespace" Namespace (";")?
 NameSpec           ::= "name" Name (";")?
 VersionSpec        ::= "version" LiteralInteger (";")?
+BasePath           ::= "base" LiteralString (";")?
+IncludeSpec        ::= "include" LiteralString (";")?
+UseSpec            ::= "use" LiteralString (";")?
 
-TypeDef            ::= SimpleTypeDef | BytesTypeDef | StringTypeDef | SymbolTypeDef | NumberTypeDef | EnumTypeDef | StructTypeDef
-
-SimpleTypeDef      ::= "type" Name TypeSpec (";")?
+TypeDef            ::= "type" Name TypeSpec (";")?
 
 TypeSpec           ::= TypeRef
-                     | "Array" "<" TypeRef ">"
-                     | "Map" "<" TypeRef "," TypeRef ">"
-                     | "Union" "<" TypeName ("," TypeName)* ">"
+                     | AliasTypeSpec
+                     | BytesTypeSpec
+                     | StringTypeSpec
+                     | SymbolTypeSpec
+                     | ArrayTypeSpec
+                     | MapTypeSpec
+                     | StructTypeSpec
+                     | UnionTypeSpec
+                     | EnumTypeSpec
 
-BytesTypeDef       ::= "type" Name "Bytes" ("[" LiteralInteger "]")? ("(" BytesOption ("," BytesOption)* ")")? (";")?
+AliasTypeSpec      ::= TypeRef ("(" ExtendedOption ("," ExtendedOption)* ")")?
 
+BytesTypeSpec      ::= "Bytes" ("[" LiteralInteger "]")? ("(" BytesOption ("," BytesOption)* ")")?
 BytesOption        ::= "minsize" "=" LiteralInteger | "maxsize" "=" LiteralInteger
                      | ExtendedOption
 
-StringTypeDef      ::= "type" Name "String" ("(" StringOption ("," StringOption)* ")")? ";"
-
+StringTypeSpec     ::= "String" ("(" StringOption ("," StringOption)* ")")?
 StringOption       ::= "pattern" "=" LiteralString
                      | "values" "=" "[" LiteralString ("," LiteralString)* "]"
+                     | "minsize" "=" LiteralInteger | "maxsize" "=" LiteralInteger 
                      | ExtendedOption
 
-SymbolTypeDef      ::= "type" Name "Symbol" ("(" SymbolOption ("," SymbolOption)* ")")? ";"
-
+SymbolTypeSpec     ::= "Symbol" ("(" SymbolOption ("," SymbolOption)* ")")?
 SymbolOption       ::= "values" "=" "[" LiteralSymbol ("," LiteralSymbol)* "]"
                      | ExtendedOption
 
-NumberTypeDef      ::= "type" Name NumberType ("(" NumberOption ("," NumberOption)* ")")? (";")?
-
-NumberOption       ::= "min" "=" LiteralNumber | "max" "=" LiteralNumber
+ArrayTypeSpec      ::= "Array" "<" TypeRef ">" ("(" ArrayOption ("," ArrayOption)* ")")?
+ArrayOption        ::= "size" "=" LiteralInteger | "minsize" "=" LiteralInteger | "maxsize" "=" LiteralInteger
                      | ExtendedOption
 
-EnumTypeDef        ::= "type" Name "Enum" ("(" EnumOption ("," EnumOption)* ")")? "{" Identifier ("," Identifier)* ("}")?
+MapTypeSpec        ::= "Map" "<" TypeRef "," TypeRef ">" ("(" MapOption ("," MapOption)* ")")?
+MapOption          ::= "size" "=" LiteralInteger | "minsize" "=" LiteralInteger | "maxsize" "=" LiteralInteger
+                     | ExtendedOption
 
-EnumOption         ::= ExtendedOption
-
-StructTypeDef      ::= "type" Name "Struct" ("(" StructOption ("," StructOption)* ")")? "{" FieldSpec+ "}"
-
+StructTypeSpec     ::= "Struct" ("(" StructOption ("," StructOption)* ")")? "{" FieldSpec+ "}"
 StructOption       ::= "closed"
                      | ExtendedOption
-
 FieldSpec          ::= TypeSpec Name ("(" FieldOption ("," FieldOption)* ")")? ";"
-
 FieldOption        ::= "optional"
                      | "default" "=" Literal
                      | ExtendedOption
 
-ArrayOption        ::= "size" "=" LiteralInteger | "minsize" "=" LiteralInteger | "maxsize" "=" LiteralInteger
+NumberTypeSpec     ::= NumberType ("(" NumberOption ("," NumberOption)* ")")?
+NumberOption       ::= "min" "=" LiteralNumber | "max" "=" LiteralNumber
                      | ExtendedOption
 
-MapOption          ::= "minsize" "=" LiteralInteger | "maxsize" "=" LiteralInteger
-                     | ExtendedOption
+UnionTypeSpec      ::= "Union" "<" TypeName ("," TypeName)* ">" ("(" UnionOption ("," UnionOption)* ")")?
+UnionOption        ::= ExtendedOption
 
+EnumTypeSpec       ::= "Enum" ("(" EnumOption ("," EnumOption)* ")")? "{" Identifier ("," Identifier)* ("}")?
+EnumOption         ::= ExtendedOption
 
 ExtendedOption     ::= "x_" LiteralSymbol
                      | "x_" LiteralSymbol "=" LiteralString
