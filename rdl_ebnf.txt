@@ -38,12 +38,10 @@ SymbolOption       ::= "values" "=" "[" LiteralSymbol ("," LiteralSymbol)* "]"
                      | ExtendedOption
 
 ArrayTypeSpec      ::= "Array" "<" TypeRef ">" ("(" ArrayOption ("," ArrayOption)* ")")?
-ArrayOption        ::= "size" "=" LiteralInteger | "minsize" "=" LiteralInteger | "maxsize" "=" LiteralInteger
-                     | ExtendedOption
+ArrayOption        ::= "size" "=" LiteralInteger | "minsize" "=" LiteralInteger | "maxsize" "=" LiteralInteger | ExtendedOption
 
 MapTypeSpec        ::= "Map" "<" TypeRef "," TypeRef ">" ("(" MapOption ("," MapOption)* ")")?
-MapOption          ::= "size" "=" LiteralInteger | "minsize" "=" LiteralInteger | "maxsize" "=" LiteralInteger
-                     | ExtendedOption
+MapOption          ::= "size" "=" LiteralInteger | "minsize" "=" LiteralInteger | "maxsize" "=" LiteralInteger | ExtendedOption
 
 StructTypeSpec     ::= "Struct" ("(" StructOption ("," StructOption)* ")")? "{" FieldSpec+ "}"
 StructOption       ::= "closed"
@@ -51,6 +49,11 @@ StructOption       ::= "closed"
 FieldSpec          ::= TypeSpec Name ("(" FieldOption ("," FieldOption)* ")")? ";"
 FieldOption        ::= "optional"
                      | "default" "=" Literal
+                     | StringOption
+                     | SymbolOption
+                     | ArrayOption
+                     | MapOption
+                     | NumberOption
                      | ExtendedOption
 
 NumberTypeSpec     ::= NumberType ("(" NumberOption ("," NumberOption)* ")")?
@@ -65,7 +68,6 @@ EnumOption         ::= ExtendedOption
 
 ExtendedOption     ::= "x_" LiteralSymbol
                      | "x_" LiteralSymbol "=" LiteralString
-
 
 NumericType        ::= "Int8" | "Int16" | "Int32" | "Int64" | "Float32" | "Float64"
 
